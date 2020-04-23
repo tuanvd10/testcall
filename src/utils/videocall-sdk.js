@@ -250,13 +250,7 @@ VideoCall.prototype.connect = function (account, callback) {
                                                     });
                                             }
                                         }
-                                    } else if (event === 'hangup') {
-                                        Janus.log("Call hung up by " + result["username"] + " (" + result["reason"] + ")!");
-                                        self.plugin.hangup();
-                                        self.ringing(false);
-                                        self.callOnEvent('hangup', result["username"]);
                                     }
-                                    
                                     else if (event === "timeout") {
                                         self.hangup();
                                         Janus.log("The call timeout. Hangup by user " + result["username"]);
@@ -277,7 +271,8 @@ VideoCall.prototype.connect = function (account, callback) {
 
                                         }
                                         self.plugin.hangup();
-                                        self.callOnEvent('stop', result["call_state"]);                                    }
+                                        self.callOnEvent('stop', result["call_state"]);
+                                    }
                                 }
                             } else {
                                 let error = msg["error"];
@@ -290,7 +285,8 @@ VideoCall.prototype.connect = function (account, callback) {
                         },
                         error: function (error) {
                             Janus.error("  -- Error attaching plugin...", error);
-                        }                    });
+                        }
+                    });
             },
             error: function (error) {
                 callback.error(error);
