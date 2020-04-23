@@ -5,7 +5,7 @@ const config = {
         socket_port: 5000
     },
     video_call: {
-        hostname: "10.55.123.89"
+        hostname: "bangtv2.cf"
     }
 }
 

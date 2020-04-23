@@ -8,7 +8,7 @@ import LinearProgress from '@material-ui/core/LinearProgress';
 import Grid from '@material-ui/core/Grid';
 import Slide from '@material-ui/core/Slide';
 
-import axios from 'axios';
+//import axios from 'axios';
 
 import globalVideoCall from "../utils/videocall-sdk";
 import config from "../config/config";
@@ -232,11 +232,11 @@ class CallComponent extends Component {
     saveCallInfor = () => {
         if (this.callInfo) {
             console.log("save call to DB: ", this.callInfo);
-            axios.post(config.backend.hostname + ":" + config.backend.port + "/patient/call/createnewcall", this.callInfo)
+            /*axios.post(config.backend.hostname + ":" + config.backend.port + "/patient/call/createnewcall", this.callInfo)
                 .then(res => {
                     //console.log(res);
                 })
-                .catch(error => { console.log(error); });
+                .catch(error => { console.log(error); });*/
         } else {
             console.log("Callee, not write");
         }

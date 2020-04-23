@@ -10,7 +10,7 @@ import globalVideoCall from "./utils/videocall-sdk";
  */
 
 if (globalVideoCall.isInit()) {
-  globalVideoCall.connect("0900000000", {
+  globalVideoCall.connect("tuanvd10_a", {
     success: function () {
       console.log("Video Call connected...");
     },
@@ -61,7 +61,7 @@ class App extends Component {
     return (
       <div>
         <Button onClick={this.handleClickButtonCall}>CALL OTHER</Button>
-        {this.state.callType === true && <CallComponent type={this.state.callType} onClose={this.handleCloseCall} outcomeNumber="097777777" />}
+        {this.state.callType && <CallComponent type={this.state.callType} onClose={this.handleCloseCall} outcomeNumber="tuanvd10_b" />}
       </div>
     );
   }
