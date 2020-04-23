@@ -138,6 +138,26 @@ VideoCall.prototype.connect = function (account, callback) {
     self.janus = new Janus(
         {
             server: this.media_server,
+            iceServers: [
+                {
+                    'urls': 'stun:bangtv.ml:3478'
+                },
+                {
+                    'urls': 'turn:bangtv.ml:3478?transport=tcp',
+                    'credential': '1231234',
+                    'username': 'bangtran'
+                },
+                {
+                    'urls': 'turn:bangtv.ml:3478?transport=udp',
+                    'credential': '1231234',
+                    'username': 'bangtran'
+                },
+                {
+                    'urls': 'turn:bangtv.ml:443?transport=tcp',
+                    'credential': '1231234',
+                    'username': 'bangtran'
+                }
+            ],
             token: account,
             success: function () {
                 self.isConnected = true;
