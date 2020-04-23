@@ -67,6 +67,17 @@ function HashMap() {
     return e;
 }
 
+var call_state = [
+    "CALL_INIT",
+    "CALL_BUSY",
+    "CALL_RINGING",
+    "CALL_ACCEPTED",
+    "CALL_REJECT",
+    "CALL_MISSED",
+    "CALL_STARTED",
+    "CALL_TIMEOUT",
+    "CALL_ENDED"
+];
 // VideoCall class
 function VideoCall() {
     this.isInited = false;
@@ -204,11 +215,13 @@ VideoCall.prototype.connect = function (account, callback) {
                                         Janus.log("Incoming call from " + result["username"] + "!");
                                         self.peername = result["username"];
                                         self.jsep.answer = jsep;
+                                        self.ringing(true);
                                         self.callOnEvent('incomingcall', self.peername);
                                     } else if (event === 'accepted') {
                                         var peer = result["username"];
                                         if (peer === null || peer === undefined) {
-                                            Janus.log("Call started!");
+                                            console.debug("Call started!");
+                                            self.ringing(false);
                                         } else {
                                             Janus.log(peer + " accepted the call!");
                                             self.peername = peer;
@@ -239,16 +252,32 @@ VideoCall.prototype.connect = function (account, callback) {
                                         }
                                     } else if (event === 'hangup') {
                                         Janus.log("Call hung up by " + result["username"] + " (" + result["reason"] + ")!");
-                                        //self.plugin.hangup();
+                                        self.plugin.hangup();
+                                        self.ringing(false);
                                         self.callOnEvent('hangup', result["username"]);
                                     }
+                                    
                                     else if (event === "timeout") {
                                         self.hangup();
                                         Janus.log("The call timeout. Hangup by user " + result["username"]);
                                     } else if (event === 'stop') {
-                                        self.callOnEvent("stop", result);
-                                        Janus.log("Result: " + result["start_time"] + ", " + result["stop_time"] + ", " + result["record_path"]);
-                                    }
+
+                                        console.debug("Stop event: " + call_state[result["call_state"]]);
+                                        switch (call_state[result["call_state"]]) {
+                                            case "CALL_ENDED":
+                                            case "CALL_TIMEOUT":
+                                                console.debug("+ Start time: " + result["start_time"]);
+                                                console.debug("+ Stop time: " + result["stop_time"]);
+                                                if (result["record_path"])
+                                                    console.debug("+ Record path: " + result["record_path"]);
+                                                break;
+                                            case "CALL_ACCEPTED":
+                                                self.ringing(false);
+                                                break;
+
+                                        }
+                                        self.plugin.hangup();
+                                        self.callOnEvent('stop', result["call_state"]);                                    }
                                 }
                             } else {
                                 let error = msg["error"];
@@ -256,13 +285,12 @@ VideoCall.prototype.connect = function (account, callback) {
                                 if (error.indexOf("already taken") > 0) {
                                     callback.error("Username has already taken");
                                 }
-                                //self.plugin.hangup();
+                                self.plugin.hangup();
                             }
                         },
                         error: function (error) {
                             Janus.error("  -- Error attaching plugin...", error);
-                        }
-                    });
+                        }                    });
             },
             error: function (error) {
                 callback.error(error);
@@ -364,7 +392,7 @@ VideoCall.prototype.enableVideo = function (isEnable) {
 // reject a call
 VideoCall.prototype.reject = function () {
     //this.hangup();
-    this.plugin.send({ "message": { "request": "hangup", "reason": "decline" } });
+    this.plugin.send({ "message": { "request": "reject" } });
     if (this.intervalRinging)
         this.ringing(false);
 }
