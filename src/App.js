@@ -1,26 +1,70 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { Component } from "react";
 import './App.css';
+import Button from '@material-ui/core/Button';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import CallComponent from "./component/CallComponent";
+import globalVideoCall from "./utils/videocall-sdk";
+
+/**
+ * 2 test numbers: 097777777 - 090000000
+ */
+
+if (globalVideoCall.isInit()) {
+  globalVideoCall.connect("0900000000", {
+    success: function () {
+      console.log("Video Call connected...");
+    },
+    error: function (error) {
+      console.log("Video Call could not connect: " + error);
+    }
+  });
+} else {
+  console.log("video call not init, please check!")
+}
+class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      callincome: false,
+      callType: null
+    }
+  }
+
+  componentDidMount() {
+    globalVideoCall.on("incomingcall", (username) => {
+      console.log("recv a video call from: " + username);
+      if(!this.state.callType){
+        this.setState({ callincome: true, callType: "CALLINCOME" });
+        globalVideoCall.ringing(true);
+      }
+    });
+  }
+
+  componentWillUnmount() {
+    console.log("Unmount event");
+    //globalVideoCall.disconnect();
+  }
+
+  handleCloseCall = () => {
+    this.setState({ callincome: false, callType: null });
+  }
+
+  handleClickButtonCall = () => {
+    console.log("Start a Call to 097777777");
+    if(!this.state.callType){
+      this.setState({ callincome: true, callType: "CALLOUTCOME" });
+    }
+  }
+
+  render() {
+
+    return (
+      <div>
+        <Button onClick={this.handleClickButtonCall}>CALL OTHER</Button>
+        {this.state.callType === true && <CallComponent type={this.state.callType} onClose={this.handleCloseCall} outcomeNumber="097777777" />}
+      </div>
+    );
+  }
 }
 
 export default App;
